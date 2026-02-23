@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Convite do Theo 1 Ano</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root { --cor-theo: #89b47e; --cor-detalhe: #5c8d52; }
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #e0f2f1 0%, #ffffff 100%);
+      overflow: hidden; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nuvens de fundo */
+    .nuvens {
+      position: fixed; inset: 0;
+      background: url('https://www.transparenttextures.com/patterns/clouds.png');
+      opacity: 0.3;
+      z-index: -1;
+      animation: moverNuvens 60s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes moverNuvens { from {background-position: 0 0;} to {background-position: 1000px 0;} }
+
+    /* Overlay inicial */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: opacity 0.8s ease;
+    }
+
+    .overlay-content {
+      width: 100%;
+      max-width: 600px; /* Aumentado para PC */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .overlay-content h1 {
+      margin: 0 0 10px;
+      color: #555;
+      font-size: clamp(22px, 5vw, 36px); /* Fonte maior no PC */
+      font-weight: 300;
+    }
+
+    .subtexto-overlay {
+      margin: 0 0 25px;
+      color: #777;
+      font-size: clamp(14px, 2vw, 18px);
+    }
+
+    /* Álbum - Responsivo para Mobile e PC */
+    .album {
+      width: min(85vw, 320px); /* Tamanho Mobile */
+      height: min(85vw, 320px);
+      position: relative;
+      margin-bottom: 35px;
+      z-index: 10;
+    }
+
+    /* Ajuste para COMPUTADORES (Telas largas) */
+    @media (min-width: 1024px) {
+      .album {
+        width: 450px; /* Foto bem maior no computador */
+        height: 450px;
+      }
+    }
+
+    /* Ajuste para telas muito curtas */
+    @media (max-height: 600px) {
+      .album { width: 220px; height: 220px; }
+    }
+
+    .album .foto {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .album .foto.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .album .foto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 25px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      border: 8px solid white;
+    }
+
+    /* Bolinhas */
+    .album .dots {
+      position: absolute;
+      left: 50%;
+      bottom: -25px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .album .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ddd;
+      transition: 0.3s;
+    }
+    .album .dot.active { background: var(--cor-theo); transform: scale(1.3); }
+
+    /* Botão Abrir */
+    #btn-abrir {
+      width: 100%;
+      max-width: 350px; /* Um pouco maior no PC */
+      padding: 18px 25px;
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: bold;
+      border: none;
+      background: var(--cor-theo);
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(137, 180, 126, 0.4);
+      animation: pulsarBotao 2s infinite;
+      transition: 0.3s;
+    }
+
+    @keyframes pulsarBotao {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* Dinos e Barra (Mantidos) */
+    #baloes-page { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1200; display: none; }
+    .balao { position: absolute; bottom: -90px; left: var(--pos-x); font-size: var(--size); opacity: 0; animation: subirBalao var(--dur) linear forwards; }
+    @keyframes subirBalao { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(-120vh) translateX(var(--drift)); opacity: 0; } }
+    #music-bar { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: rgba(0,0,0,0.05); z-index: 2100; display: none; }
+    #progress { height: 100%; width: 0%; background: var(--cor-theo); }
+
+    /* Convite */
+    .convite-wrapper {
+      position: relative;
+      width: min(94vw, 800px); /* Aumentado limite para PC */
+      margin: 20px 0 50px;
+      opacity: 0;
+      display: none;
+      transform: translateY(30px);
+      transition: 1s all ease;
+    }
+    .img-convite { width: 100%; height: auto; display: block; border-radius: 15px; }
+    .instrucao { opacity: 0; color: var(--cor-detalhe); font-size: 14px; font-weight: bold; margin-top: 20px; text-transform: uppercase; }
+
+    /* Links */
+    .link-interativo { position: absolute; background: rgba(137, 180, 126, 0.2); border-radius: 50px; animation: pulseVerde 2s infinite; }
+    @keyframes pulseVerde { 0% { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(137, 180, 126, 0); } 100% { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0); } }
+
+    .loc  { top: 43.5%; left: 42%;   width: 30%; height: 3.5%; }
+    .pres { top: 48.2%; left: 42%;   width: 40%; height: 3.5%; }
+    .conf { top: 54%;   left: 44.5%; width: 28%; height: 7.5%; border-radius: 10px; }
+
+  </style>
+</head>
+
+<body>
+  <div class="nuvens"></div>
+  <div id="baloes-page"></div>
+  <div id="music-bar"><div id="progress"></div></div>
+
+  <div id="overlay">
+    <div class="overlay-content">
+      <h1>O Convite do Theo chegou!</h1>
+      <p class="subtexto-overlay">Toque abaixo para abrir com música 🎵🦖</p>
+
+      <div class="album" id="album">
+        <div class="foto active"><img src="fotos/theo1.jpeg" alt="Theo 1"></div>
+        <div class="foto"><img src="fotos/theo2.jpeg" alt="Theo 2"></div>
+        <div class="foto"><img src="fotos/theo3.jpeg" alt="Theo 3"></div>
+        <div class="foto"><img src="fotos/theo4.jpeg" alt="Theo 4"></div>
+        <div class="foto"><img src="fotos/theo5.jpeg" alt="Theo 5"></div>
+        <div class="foto"><img src="fotos/theo6.jpeg" alt="Theo 6"></div>
+        <div class="dots" id="albumDots"></div>
+      </div>
+
+      <button id="btn-abrir" onclick="abrirConvite()">🦖 ABRIR CONVITE MUSICAL</button>
+    </div>
+  </div>
+
+  <div class="instrucao" id="texto-instrucao">✨ Clique nos botões para interagir ✨</div>
+
+  <div class="convite-wrapper" id="convite">
+    <img src="convite-theo.jpg" class="img-convite" alt="Convite do Theo" />
+    <a href="http://googleusercontent.com/maps.google.com/3" target="_blank" class="link-interativo loc"></a>
+    <a href="https://aniversario-dld5.listaideal.com.br/pt/" target="_blank" class="link-interativo pres"></a>
+    <a href="https://docs.google.com/forms/..." target="_blank" class="link-interativo conf"></a>
+  </div>
+
+  <audio id="audioPlayer" loop>
+    <source src="sua-musica.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    let albumTimer;
+    function iniciarAlbum() {
+      const fotos = Array.from(document.querySelectorAll('#album .foto'));
+      const dotsWrap = document.getElementById('albumDots');
+      dotsWrap.innerHTML = fotos.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}"></span>`).join('');
+      const dots = Array.from(dotsWrap.querySelectorAll('.dot'));
+      let current = 0;
+      albumTimer = setInterval(() => {
+        fotos[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (current + 1) % fotos.length;
+        fotos[current].classList.add('active');
+        dots[current].classList.add('active');
+      }, 2500);
+    }
+
+    function abrirConvite() {
+      clearInterval(albumTimer);
+      const audio = document.getElementById("audioPlayer");
+      audio.play().catch(() => {});
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      document.getElementById("overlay").style.opacity = "0";
+      setTimeout(() => {
+        document.getElementById("overlay").style.display = "none";
+        document.body.style.overflow = "auto";
+        const convite = document.getElementById("convite");
+        convite.style.display = "block";
+        setTimeout(() => {
+            convite.style.opacity = "1";
+            convite.style.transform = "translateY(0)";
+            document.getElementById("texto-instrucao").style.opacity = "1";
+        }, 50);
+        document.getElementById("music-bar").style.display = "block";
+        iniciarDinos();
+      }, 800);
+      audio.ontimeupdate = () => {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        document.getElementById("progress").style.width = pct + "%";
+      };
+    }
+
+    function iniciarDinos() {
+      const container = document.getElementById('baloes-page');
+      container.style.display = 'block';
+      setInterval(() => {
+        const el = document.createElement('div');
+        el.className = 'balao';
+        el.innerText = ['🦕', '🦖', '🌿', '🎈'][Math.floor(Math.random() * 4)];
+        el.style.setProperty('--pos-x', Math.random() * 100 + '%');
+        el.style.setProperty('--dur', (6 + Math.random() * 5) + 's');
+        el.style.setProperty('--drift', (Math.random() * 150 - 75) + 'px');
+        el.style.setProperty('--size', (20 + Math.random() * 20) + 'px');
+        el.addEventListener('animationend', () => el.remove());
+        container.appendChild(el);
+      }, 700);
+    }
+    document.addEventListener('DOMContentLoaded', iniciarAlbum);
+  </script>
+</body>
+</html>
