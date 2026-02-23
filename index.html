@@ -175,12 +175,16 @@
     .instrucao { opacity: 0; color: var(--cor-detalhe); font-size: 14px; font-weight: bold; margin-top: 20px; text-transform: uppercase; }
 
     /* Links */
-    .link-interativo { position: absolute; background: rgba(137, 180, 126, 0.2); border-radius: 50px; animation: pulseVerde 2s infinite; }
-    @keyframes pulseVerde { 0% { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(137, 180, 126, 0); } 100% { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0); } }
+    .link-interativo { position: absolute; background: rgba(137, 180, 126, 0.4); 
+      border-radius: 50px; animation: pulseVerde 2s infinite; }
+    @keyframes pulseVerde { 0% 
+    { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0.5); } 70% 
+    { box-shadow: 0 0 0 12px rgba(137, 180, 126, 0); } 100% 
+    { box-shadow: 0 0 0 0 rgba(137, 180, 126, 0); } }
 
-    .loc  { top: 43.5%; left: 42%;   width: 30%; height: 3.5%; }
-    .pres { top: 48.2%; left: 42%;   width: 40%; height: 3.5%; }
-    .conf { top: 54%;   left: 44.5%; width: 28%; height: 7.5%; border-radius: 10px; }
+    .loc  { top: 43%; left: 42%;   width: 18%; height: 3.5%; }
+    .pres { top: 47.5%; left: 42%;   width: 33%; height: 3.5%; }
+    .conf { top: 54%;   left: 44.5%; width: 15%; height: 7.5%; border-radius: 10px; }
 
   </style>
 </head>
@@ -209,16 +213,16 @@
     </div>
   </div>
 
-  <div class="instrucao" id="texto-instrucao">✨ Clique para interagir ✨</div>
+  <div class="instrucao" id="texto-instrucao">✨ Clique nos botões para interagir ✨</div>
 
   <div class="convite-wrapper" id="convite">
     <img src="convite-theo.jpg" class="img-convite" alt="Convite do Theo" />
-    <a href="https://maps.app.goo.gl/9pFZHdC8SgD672Xo8" target="_blank" class="link-interativo loc"></a>
+    <a href="http://googleusercontent.com/maps.google.com/3" target="_blank" class="link-interativo loc"></a>
     <a href="https://aniversario-dld5.listaideal.com.br/pt/" target="_blank" class="link-interativo pres"></a>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSdT7hM88EBYeNKG7xFW6TVLMukIucIcwSO1Z2zfA9-zCPKBMw/viewform" target="_blank" class="link-interativo conf"></a>
   </div>
 
-  <audio id="audioPlayer" loop volume="0.7">
+  <audio id="audioPlayer" loop>
     <source src="sua-musica.mp3" type="audio/mpeg" />
   </audio>
 
